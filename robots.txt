@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://goldrail777.github.io/096/sitemap.xml
