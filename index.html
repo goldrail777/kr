@@ -546,8 +546,9 @@ button { font-family: inherit; }
 .drag-ghost span { display: none; font-size: 11px; font-weight: 900; color: #fff; background: #3a2a52; border: 1px solid #f7a8ff; border-radius: 6px; padding: 1px 6px; white-space: nowrap; }
 .drag-ghost.stash span { display: block; }
 .drag-ghost.on-board { opacity: 0; }
-/* タッチ：手持ちの機械は指でそのままドラッグできるように（スクロールにしない）。ショップの品は縦にはスクロール、横に動かすとドラッグ */
-.tray .glyph { touch-action: none; cursor: grab; }
+/* タッチ：手持ちは縦に指を動かすとスクロール、長押し（0.25秒）か横に動かすとドラッグ（2026-11-17：前は touch-action:none でスクロールできなかった）。
+   ショップの品は縦にはスクロール、横に動かすとドラッグ */
+.tray .glyph { touch-action: pan-y; cursor: grab; }
 .cards .card { touch-action: pan-y; -webkit-user-select: none; user-select: none; }
 .tray, .cards { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 @media (pointer: coarse) {
@@ -647,8 +648,14 @@ body.short .start-btn { font-size: 16px; }
 .kit-chip { margin-left: auto; color: var(--coin); font-weight: 900; }
 #side .tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; min-height: 76px; max-height: 176px; overflow-y: auto; padding: 0; border: none; background: none; align-content: start; flex-wrap: nowrap; }
 #side .tray .empty { grid-column: 1 / -1; align-self: center; color: var(--muted); font-size: 12px; padding: 0 4px; }
-.tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 2px 4px; border-radius: 10px; background: #1b1f2a; border: 1px solid var(--line); cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; min-width: 0; }
+.tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 2px 4px; border-radius: 10px; background: #1b1f2a; border: 1px solid var(--line); cursor: grab; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; min-width: 0; transition: transform .12s, box-shadow .12s; }
 .tile:hover { border-color: var(--accent); }
+/* 長押しで持ち上げた手持ち（このままドラッグできる） */
+.tile.lift { transform: scale(1.1); border-color: var(--coin); box-shadow: 0 6px 16px #000a, 0 0 0 2px var(--coin); position: relative; z-index: 2; }
+.touch-hint { display: none; font-size: 10.5px; color: var(--muted); line-height: 1.3; }
+@media (hover: none) and (pointer: coarse) {
+  .touch-hint { display: block; }
+}
 #side .tile .glyph { width: 48px; height: 48px; cursor: inherit; }
 .tile span { font-size: 10.5px; font-weight: 700; color: #c3cad8; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tile.sel { border-color: var(--coin); background: #2a2410; box-shadow: 0 0 0 2px var(--coin), 0 0 14px #ffd44766; }
@@ -1298,6 +1305,10 @@ body.short .db-place { margin: -2px 40px 6px 0; padding: 4px 8px; border-radius:
   .btn.research-go.big { padding: 6px 10px; }
   .go-hint, .miss-line { font-size: 12px !important; margin: 2px 0 !important; }
 }
+/* スマホ縦でショップを開いているときは、手持ちが細い列なので操作のヒントは出さない（ショップを閉じると出す） */
+@media (orientation: portrait) and (max-width: 1100px) {
+  body:not(.shop-closed) .touch-hint { display: none; }
+}
 </style>
 </head>
 <body>
@@ -1397,18 +1408,31 @@ const TIERS = [
   { name: '銅', color: '#e08a4f', edge: '#8a4a22', ship: 1 },
   { name: '銀', color: '#e3eaf3', edge: '#8793a3', ship: 1 },
   { name: '金', color: '#ffd447', edge: '#b07800', ship: 1 },
-  // 金より上：賢者の石があるときだけ（錬金釜でランクの上限がなくなる）
-  { name: '白金', color: '#dff6ff', edge: '#6f9cc0', ship: 1 },
-  { name: '虹', color: '#ff9ad8', edge: '#8a3a6a', ship: 1 },
+  // 2026-11-17：金より上（白金・虹…。賢者の石で上限がなくなる）はユーザーの要望でなくした。かわりに錬金術師を掛け算に
 ];
-// 素材ランクの表示（虹より上は「虹+1」「虹+2」…）
 function tierOf(t) {
-  if (t < TIERS.length) return TIERS[t];
-  return { name: '虹+' + (t - TIERS.length + 1), color: '#ff9ad8', edge: '#8a3a6a', ship: 1 };
+  return TIERS[Math.max(0, Math.min(TIERS.length - 1, t))];
 }
 const RANK_MUL = 2; // ランクが上がるたびの倍率
-const ALCH_STEP = 3.5; // 錬金術師1台ごとに、ランクアップの倍率 ×(1 + 3.5×台数)（2026-11-14：2.5 → 3.5。錬金ビルドを強く）
+// 錬金術師：ランクが上がるたびに、1台ごとに ×ALCH_MUL を掛けていく（1台 ×3、2台 ×9、3台 ×27）
+// 2026-11-17：前は ×(1 + 3.5×台数)（足し算）。ユーザーの要望で掛け算に
+const ALCH_MUL = 3;
+function alchCount() {
+  const placed = countPlaced('alchemist');
+  return placed > 0 ? placed + (modOn('alchemist') ? 1 : 0) : 0;
+}
+function alchMul() {
+  return Math.pow(ALCH_MUL, alchCount());
+}
 const GOLD_PASS = 5; // 金のアイテムが錬金釜を通ったときの倍率（ランクの上限で止まったとき。前は ×4）
+const PHILO_GOLD_STEPS = 2; // 賢者の石：もう金のアイテムは、この段数ぶん上がったのと同じ倍率
+// 2026-11-17 の強化（ユーザーの要望）：溶解炉 ×12/×30 → ×16/×40、金細工師 金×3.5 → ×4、呪いの炉 ×8 → ×10、冷却塔 +2 → +3、熟練工 +0.5 → +0.6/回、金庫 ÷25 → ÷40（弱く）
+const MELT_BASE = 16;
+const MELT_MOD = 40;
+const GOLDSMITH_GOLD = 4;
+const CURSED_MUL = 10;
+const ARTISAN_STEP = 0.6;
+const VAULT_DIV = 40;
 
 // 発動順: 変換 → 加算 → 乗算 → 特殊
 const KIND_PRIO = { transform: 0, add: 1, mult: 2, special: 3, passive: 9 };
@@ -1442,8 +1466,9 @@ const GAME_URL = 'https://goldrail777.github.io/kr/';
 // 急冷槽の倍率：×(1 + 熱²÷2)。熱4で×9、熱8で×33、熱12で×73、熱20で×201（2026-11-14：数字を小さくするため3乗→2乗）
 // 前は「熱1につき×1.5の重ねがけ」（指数）で、雷や還流で熱が何百もたまると 10^50 を超えた。3乗なら熱がいくら増えても桁は数個しか増えない
 const QUENCH_DIV = 2;
+// 追加効果「瞬間冷却」：÷2 をなくす（2026-11-17：前の「余熱＝熱の半分が残る」は実質意味がなかった）
 function quenchMul(h) {
-  return 1 + (h * h) / QUENCH_DIV;
+  return 1 + (h * h) / (typeof modOn === 'function' && modOn('quench') ? 1 : QUENCH_DIV);
 }
 // ボット・探索用の見込み：運の機械（宝くじ機・呪いの炉）は期待値ではなく、手堅く見積もった値で数える
 // 期待値は「めったに出ない大当たり」に引っぱられるので、ノルマを安定して超えられるかの目安にならない
@@ -1466,14 +1491,14 @@ const MACHINES = {
   },
   cooler: {
     name: '冷却塔', glyph: '冷', color: '#5aa9de', rarity: 2, cost: 6, kind: 'passive', family: 'base',
-    desc: '<i>常時</i>：隣接する「×」系の機械の倍率 <b>+2</b>（×2→×4）。ただし <b>隣の「炉」は熱を出さなくなる</b>',
+    desc: '<i>常時</i>：隣接する「×」系の機械の倍率 <b>+3</b>（×2→×5）。ただし <b>隣の「炉」は熱を出さなくなる</b>',
     mod: { name: '断熱', desc: '隣の「炉」も熱を出すようになる（代償がなくなる）' },
     apply: null,
   },
   prism: {
     name: 'プリズム', glyph: '晶', color: '#7fb8e6', rarity: 4, cost: 11, kind: 'passive', locked: true, size: 2, cells: 2, family: 'base',
-    desc: '<i>常時</i>：隣に触れている機械の <b>種類の数だけ</b>、隣の「+」「×」の機械の効果を <b>×1.6 ずつ</b> 強くする（累乗：2種類で×2.6、4種類で×6.6、6種類で×17）。ベルトの上の機械も数える。違う機械で囲むほど強い。<b>大型：2マス・設置枠2つ</b>（隣が最大6マス）',
-    mod: { name: '全反射', desc: '1種類ごとに ×1.6 → <b>×1.8</b>（6種類で×34）' },
+    desc: '<i>常時</i>：<b>周り2マス以内</b>（縦・横・斜め）にある機械の <b>種類の数だけ</b>、その範囲の「+」「×」の機械の効果を <b>×1.24 ずつ</b> 強くする（累乗：4種類で×2.4、6種類で×3.6、8種類で×5.6）。ベルトの上の機械も数える。ベルトから1つ奥のマスに置いても届く。<b>大型：2マス・設置枠2つ</b>',
+    mod: { name: '全反射', desc: '1種類ごとに ×1.24 → <b>×1.4</b>（8種類で×15）' },
     apply: null,
   },
   amp: {
@@ -1498,13 +1523,13 @@ const MACHINES = {
   twin: {
     name: '双子炉', glyph: '双', color: '#e0743a', rarity: 2, cost: 6, kind: 'mult', hot: true, family: 'heat',
     desc: '価値 <b>×1.5</b>。<b>隣に双子炉</b>があれば <b>×2.5</b>（アイテムに熱+1）。1台だと溶鉱炉より弱い',
-    mod: { name: '三つ子', desc: '隣が溶鉱炉・溶解炉・呪いの炉でも <b>×2.5</b> になる' },
-    apply: (c) => c.mul(c.adjType('twin') + (c.mod() ? c.adjHot() : 0) > 0 ? 2.5 : 1.5),
+    mod: { name: '三つ子', desc: '隣の「炉」（双子炉・溶鉱炉・溶解炉・呪いの炉）<b>1台ごとに倍率 +1</b>（1台で×2.5、2台で×3.5、3台で×4.5）' },
+    apply: (c) => c.mul(c.mod() ? 1.5 + c.adjType('twin') + c.adjHot() : c.adjType('twin') > 0 ? 2.5 : 1.5),
   },
   quench: {
     name: '急冷槽', glyph: '急', color: '#4a90c8', rarity: 3, cost: 7, kind: 'mult', belt: true, family: 'heat',
     desc: 'アイテムの <b>熱</b> を倍率に変えて <b>熱を0に戻す</b>。熱が高いほど一気に伸びる（熱4で×9、熱8で×33、熱12で×73、熱20で×201）',
-    mod: { name: '余熱', desc: '急冷しても <b>熱の半分が残る</b>（2台目の急冷槽や、熱で強くなる機械に回せる）' },
+    mod: { name: '瞬間冷却', desc: '熱を倍率に変える力が <b>2倍</b>：熱²÷2 → <b>熱²</b>（熱4で×17、熱8で×65、熱12で×145）' },
     apply: (c) => (c.item.heat > 0 ? c.quench() : c.none('冷たい')),
   },
   bellows: {
@@ -1528,20 +1553,19 @@ const MACHINES = {
   },
   melter: {
     name: '溶解炉', glyph: '溶', color: '#b84a6a', rarity: 3, cost: 7, kind: 'mult', hot: true, family: 'stone',
-    desc: '価値 <b>×12</b>（熱+1）。ただし <b>素材ランクを1つ下げる</b>（金→銀→銅→石）：錬金釜で上げたランクを燃料にして燃やす（それまでの倍率は残る。下げたランクは、また錬金釜で上げられる）。<b>同じアイテムを溶かすたびに倍率は半分</b>（×12 → ×6 → ×3…、最低 ×1.5）。<b>石</b>は燃やせないので <b>×2</b> だけ。白金より上は燃えにくく ×2',
-    mod: { name: '業火', desc: '1回目に溶かすときの倍率 ×12 → <b>×30</b>（2回目 ×15、3回目 ×7.5…）。さらに溶かすたびにアイテムに <b>熱+2</b>（急冷槽・太陽炉と組める）' },
+    desc: '価値 <b>×16</b>（熱+1）。ただし <b>素材ランクを1つ下げる</b>（金→銀→銅→石）：錬金釜で上げたランクを燃料にして燃やす（それまでの倍率は残る。下げたランクは、また錬金釜で上げられる）。<b>同じアイテムを溶かすたびに倍率は半分</b>（×16 → ×8 → ×4…、最低 ×1.5）。<b>石</b>は燃やせないので <b>×2</b> だけ',
+    mod: { name: '業火', desc: '1回目に溶かすときの倍率 ×16 → <b>×40</b>（2回目 ×20、3回目 ×10…）。さらに溶かすたびにアイテムに <b>熱+2</b>（急冷槽・太陽炉と組める）' },
     apply: (c) => {
       if (c.item.tier > 0) {
-        const hi = c.item.tier > 3; // 白金より上（賢者の石があるときだけ）は燃えにくい
         // 同じアイテムを溶かすたびに倍率が半分（還流ポンプの距離と同じ考え方。溶かしては上げるくり返しが何乗にもならないように）
         const k = (c.item.melts || 0) + 1;
         c.item.melts = k;
         c.rankDown();
         if (c.mod()) {
           c.item.heat = (c.item.heat || 0) + 2;
-          if (k === 1 && !hi) c.ach('x_melt_stone');
+          if (k === 1) c.ach('x_melt_stone');
         }
-        return c.mul(hi ? 2 : Math.max(1.5, (c.mod() ? 30 : 12) / Math.pow(2, k - 1)));
+        return c.mul(Math.max(1.5, (c.mod() ? MELT_MOD : MELT_BASE) / Math.pow(2, k - 1)));
       }
       return c.mul(2);
     },
@@ -1549,20 +1573,20 @@ const MACHINES = {
   // ----- 黄金：錬金釜で金に変えて、金細工師で磨く（錬金釜3台が要るぶん、伸びは一番） -----
   transmuter: {
     name: '錬金釜', glyph: '錬', color: '#9a63e6', rarity: 1, cost: 4, kind: 'transform', belt: true, family: 'gold',
-    desc: '通ったアイテムの素材ランクを1つ上げて、価値 <b>×2</b>（石→銅→銀→金。3台通れば ×8）。もう金なら価値 <b>×5</b>（賢者の石があれば、金のあとも上がり続ける）',
+    desc: '通ったアイテムの素材ランクを1つ上げて、価値 <b>×2</b>（石→銅→銀→金。3台通れば ×8）。もう金なら価値 <b>×5</b>',
     mod: { name: '錬金の火', desc: 'ランクが上がるたびに <b>熱+3</b>（3回で熱+9）' },
     apply: (c) => c.transmute(),
   },
   goldsmith: {
     name: '金細工師', glyph: '金', color: '#e69a00', rarity: 2, cost: 6, kind: 'mult', family: 'gold',
-    desc: '素材ランクが高いほど強い：<b>金</b>（とその上）なら価値 <b>×3.5</b>、銀なら ×2.5、銅なら ×2。石は <b>+2</b>',
-    mod: { name: '目利き', desc: '<b>銅・銀</b>のアイテムも、金と同じ <b>×3.5</b> で磨く。<b>石</b>でも <b>×2</b>（錬金釜が1台でも、なくても働く）' },
-    apply: (c) => (c.item.tier > 0 ? c.mul(c.mod() ? 3.5 : [1, 2, 2.5, 3.5][Math.min(3, c.item.tier)]) : c.mod() ? (c.ach('x_stone_gold'), c.mul(2)) : c.add(2)),
+    desc: '素材ランクが高いほど強い：<b>金</b>なら価値 <b>×4</b>、銀なら ×3、銅なら ×2.5。石は <b>+2</b>',
+    mod: { name: '目利き', desc: '<b>銅・銀</b>のアイテムも、金と同じ <b>×4</b> で磨く。<b>石</b>でも <b>×2.5</b>（錬金釜が1台でも、なくても働く）' },
+    apply: (c) => (c.item.tier > 0 ? c.mul(c.mod() ? GOLDSMITH_GOLD : [1, 2.5, 3, GOLDSMITH_GOLD][Math.min(3, c.item.tier)]) : c.mod() ? (c.ach('x_stone_gold'), c.mul(2.5)) : c.add(2)),
   },
   alchemist: {
     name: '錬金術師', glyph: '術', color: '#8f5ad8', rarity: 3, cost: 8, kind: 'passive', locked: true, family: 'gold',
-    desc: '<i>常時</i>（どこに置いても）：錬金釜で <b>ランクが上がるたびに、さらに価値 ×4.5</b>（2台なら×8、3台なら×11.5）。溶解炉で下げたランクを上げ直したときも効く',
-    mod: { name: '大錬成', desc: '<b>錬金術師が1台多くいる</b> ものとして数える（1台で ×8、2台で ×11.5）。金のアイテムが錬金釜を通ったときの ×5 にも、同じ倍率が乗る' },
+    desc: '<i>常時</i>（どこに置いても）：錬金釜で <b>ランクが上がるたびに、さらに価値 ×3</b>。<b>台数を増やすと掛け算</b>（2台で ×9、3台で ×27）。溶解炉で下げたランクを上げ直したときも効く',
+    mod: { name: '大錬成', desc: '<b>錬金術師が1台多くいる</b> ものとして数える（1台で ×9、2台で ×27）。金のアイテムが錬金釜を通ったときの ×5 にも、同じ倍率が乗る' },
     apply: null,
   },
   // ----- 大当たり：確率を上げて、当たりを大きくする（日によってぶれる） -----
@@ -1594,13 +1618,13 @@ const MACHINES = {
   },
   cursed: {
     name: '呪いの炉', glyph: '呪', color: '#8a1f2a', rarity: 4, cost: 10, kind: 'mult', locked: true, hot: true, family: 'luck',
-    desc: '価値 <b>×8</b>（熱+1）。ただし <b>20%</b>でアイテムが消滅する（隣の招き猫1匹につき -15%）',
+    desc: '価値 <b>×10</b>（熱+1）。ただし <b>20%</b>でアイテムが消滅する（隣の招き猫1匹につき -15%）',
     mod: { name: '魔除け', desc: '消滅率 <b>-10%</b>（20% → 10%。招き猫と合わせて最低5%まで）' },
     apply: (c) => {
       const p = cursedRisk(c.cats(), c.mod());
-      if (c.dry) return c.scale(c.eff(8) * (1 - p) * (1 - p)); // 見込みは手堅く（消えるぶんを2回ぶん引く）
+      if (c.dry) return c.scale(c.eff(CURSED_MUL) * (1 - p) * (1 - p)); // 見込みは手堅く（消えるぶんを2回ぶん引く）
       if (Math.random() < p) return c.destroy();
-      return c.mul(8);
+      return c.mul(CURSED_MUL);
     },
   },
   // ----- 雷雲：アイテムを増やして、ベルト全体にかかる雷で一網打尽 -----
@@ -1613,8 +1637,8 @@ const MACHINES = {
   resonator: {
     name: '共鳴器', glyph: '響', color: '#2fb3a6', rarity: 2, cost: 5, kind: 'mult', family: 'storm',
     desc: '<b>分身</b>（分裂ゲート・複製機で増えたアイテム）なら価値 <b>×3.5</b>、それ以外は <b>+2</b>',
-    mod: { name: '石の共鳴', desc: '分身でなくても、<b>石</b>のアイテムなら <b>×2</b>（分裂ゲートがなくても働く）' },
-    apply: (c) => (c.item.twin ? c.mul(3.5) : c.mod() && c.item.tier === 0 ? (c.ach('x_res_stone'), c.mul(2)) : c.add(2)),
+    mod: { name: '共振', desc: '分身でなくても <b>×2.5</b>（どのアイテムでも。分裂ゲートがなくても働く）。分身は <b>×4.5</b>' },
+    apply: (c) => (c.item.twin ? c.mul(c.mod() ? 4.5 : 3.5) : c.mod() ? (c.item.tier === 0 && c.ach('x_res_stone'), c.mul(2.5)) : c.add(2)),
   },
   thunder: {
     name: '落雷塔', glyph: '雷', color: '#d4b000', rarity: 4, cost: 11, kind: 'special', charge: 6, size: 2, cells: 2, family: 'storm',
@@ -1660,11 +1684,11 @@ const MACHINES = {
   },
   vault: {
     name: '金庫', glyph: '庫', color: '#b5893b', rarity: 3, cost: 8, kind: 'mult', family: 'bank',
-    desc: '価値 <b>×(1 + 持ちコイン÷25)</b>。コインを貯めるほど強い（25枚で×2、50枚で×3、100枚で×5）。コインは減らない',
+    desc: '価値 <b>×(1 + 持ちコイン÷40)</b>。コインを貯めるほど強い（40枚で×2、80枚で×3、200枚で×6）。コインは減らない',
     mod: { name: '金塊', desc: '<b>金</b>のアイテムなら、持ちコインを <b>2倍</b> として数える' },
     apply: (c) => {
       const coins = c.coinsNow() * (c.mod() && c.item.tier >= 3 ? 2 : 1);
-      return coins > 0 ? c.mul(1 + coins / 25) : c.none('金欠');
+      return coins > 0 ? c.mul(1 + coins / VAULT_DIV) : c.none('金欠');
     },
   },
   piggy: {
@@ -1682,9 +1706,9 @@ const MACHINES = {
   },
   artisan: {
     name: '熟練工', glyph: '匠', color: '#9a6a3a', rarity: 3, cost: 8, kind: 'mult', family: 'rep',
-    desc: '<b>同じアイテム</b>に当たるたびに倍率が上がる：1回目 <b>×1.5</b>、2回目 ×2、3回目 ×2.5…（2回で合計×3、4回で×22、6回で×315）。1台だと溶鉱炉より弱いが、反響レールで回数を増やすと化ける',
+    desc: '<b>同じアイテム</b>に当たるたびに倍率が上がる：1回目 <b>×1.6</b>、2回目 ×2.2、3回目 ×2.8…（2回で合計×3.5、4回で×34、6回で×640）。1台だと溶鉱炉より弱いが、反響レールで回数を増やすと化ける',
     mod: { name: '金の匠', desc: '<b>金</b>のアイテムなら「当たった回数 +2」から数え始める' },
-    apply: (c) => c.mul(1 + 0.5 * (c.hitCount() + c.hitBonus())),
+    apply: (c) => c.mul(1 + ARTISAN_STEP * (c.hitCount() + c.hitBonus())),
   },
   pump: {
     name: '還流ポンプ', glyph: '環', color: '#0f9d8a', rarity: 4, cost: 11, kind: 'special', locked: true, belt: true, family: 'rep',
@@ -1695,7 +1719,7 @@ const MACHINES = {
   // ----- レジェンド（2026-11-14 に追加）：1台で盤面が変わる強さ。かわりにショップにはめったに並ばない -----
   philosopher: {
     name: '賢者の石', glyph: '賢', color: '#e04a6a', rarity: 5, cost: 15, locked: true, kind: 'transform', belt: true, family: 'gold',
-    desc: '通ったアイテムを <b>一気に金</b> にする（上がったランクの数だけ ×2、錬金術師の倍率も1段ごとにかかる）。もう金なら <b>2段</b> 上げる。<br>さらに、置いているあいだは素材ランクの <b>上限がなくなり</b>、錬金釜で金のあとも 白金→虹→… と上がり続ける',
+    desc: '通ったアイテムを <b>一気に金</b> にする（上がったランクの数だけ ×2、錬金術師の倍率も1段ごとにかかる）。もう金なら、<b>2段上がったのと同じ倍率</b>（ランクは金のまま）',
     mod: { name: '真理', desc: 'ランクが上がるたびの倍率 ×2 → <b>×3</b>（賢者の石を置いているとき）' },
     apply: (c) => c.philo(),
   },
@@ -1731,7 +1755,7 @@ const CROWN_STEP = 2.5; // 王冠：1種類ごとの出荷倍率（掛け算。�
 const MACHINE_SHORT = {
   grinder: ['価値 +2', '+2'],
   cooler: ['隣の「×」を +2', '冷却'],
-  prism: ['隣の種類の数だけ、隣を強化', '分光'],
+  prism: ['周り2マスの種類の数だけ強化', '分光'],
   amp: ['隣の × を2.5乗・+ を4倍', '増幅'],
   philosopher: ['一気に金へ・ランクの上限なし', '賢者'],
   solar: ['熱の数だけ ×（消さない）', '太陽'],
@@ -2049,7 +2073,7 @@ const ACHIEVEMENTS = [
   { id: 'leg_run', cat: 'rarity', tier: 3, name: '伝説の工場', desc: 'レジェンドの機械を2台同時に稼働させる' },
   { id: 'gacha_locked', cat: 'rarity', tier: 1, name: '未知との遭遇', desc: '納期達成ガチャから、研究でまだ開いていない機械を引く' },
   { id: 'cap_legend', cat: 'rarity', tier: 3, secret: true, name: '神引き', desc: '納期達成ガチャからレジェンドを引き当てる', hint: '納期達成のごほうびは…' },
-  { id: 'philo_gold', cat: 'rarity', tier: 2, name: '賢者の石', desc: '賢者の石の力で、金より上のランク（白金）のアイテムを作る' },
+  { id: 'philo_gold', cat: 'rarity', tier: 2, name: '賢者の石', desc: '賢者の石で、石・銅・銀のアイテムを一気に金にする' },
   { id: 'solar10', cat: 'rarity', tier: 2, name: '真昼の太陽', desc: '太陽炉で ×10 以上を出す（熱9以上）' },
   { id: 'crown8', cat: 'rarity', tier: 2, name: '万国博覧会', desc: '王冠を置いて、8種類以上の機械を稼働させる' },
   { id: 'clock_run', cat: 'rarity', tier: 1, name: '時を刻む', desc: '時計塔を稼働させる（維持費を払う）' },
@@ -2103,7 +2127,7 @@ const ACHIEVEMENTS = [
   { id: 'x_stone_gold', cat: 'cross', tier: 2, name: '石でも磨く', desc: '金細工師が石のアイテムを「×」で磨く' },
   { id: 'x_zap_heat', cat: 'cross', tier: 2, name: '雷で沸かす', desc: '雷でたまった熱を急冷する' },
   { id: 'x_lot_heat', cat: 'cross', tier: 2, name: 'ハズレも熱い', desc: '宝くじのハズレでたまった熱を急冷する' },
-  { id: 'x_res_stone', cat: 'cross', tier: 2, name: '石の共鳴', desc: '分裂・複製していない石のアイテムに、共鳴器の ×2 を当てる' },
+  { id: 'x_res_stone', cat: 'cross', tier: 2, name: '石の共鳴', desc: '分裂・複製していない石のアイテムに、共鳴器の追加効果「共振」の ×2.5 を当てる' },
   { id: 'x_melt_stone', cat: 'cross', tier: 2, name: '業火', desc: '溶解炉の追加効果「業火」で、×30 の溶解を起こす' },
   { id: 'x_cat_bank', cat: 'cross', tier: 2, name: '招き金庫', desc: '招き猫の隣の金庫か換金機が、倍率+1 で発動する' },
   { id: 'x_three', cat: 'cross', tier: 3, secret: true, name: '三刀流', desc: '1日のうちに、3つ以上の違う機械の追加効果を働かせる', hint: '追加効果をいくつも同時に' },
@@ -3806,8 +3830,8 @@ function liveMult(m) {
 }
 // 盤面の機械に付けるバッジ（効果がひと目でわかる短い文字）。数字で効く機械は、研究・★・隣の機械を入れた今の数字
 const BADGE_ADD = { grinder: 2, sieve: 4 };
-const BADGE_MUL = { furnace: 2, melter: 12, resonator: 3.5, cursed: 8 };
-const COOLER_ADD = 2; // 冷却塔1台ごとに、隣の「×」の倍率 +2（2026-11-14：+1 → +2）
+const BADGE_MUL = { furnace: 2, melter: MELT_BASE, resonator: 3.5, cursed: CURSED_MUL };
+const COOLER_ADD = 3; // 冷却塔1台ごとに、隣の「×」の倍率 +3（2026-11-14：+1 → +2、2026-11-17：+2 → +3）
 function badgeOf(m) {
   const d = MACHINES[m.type];
   const R = G.run;
@@ -3817,9 +3841,9 @@ function badgeOf(m) {
   const mulTxt = (base) => '×' + fmtMult(Math.round(mulEff(m, base) * 10) / 10);
   if (m.type in BADGE_ADD) return '+' + fmtMult(Math.round(BADGE_ADD[m.type] * k * 10) / 10);
   if (m.type in BADGE_MUL) return mulTxt(BADGE_MUL[m.type]);
-  if (m.type === 'twin') return mulTxt(adj('twin') + (modOn('twin') ? adjHotCount(m) : 0) > 0 ? 2.5 : 1.5);
+  if (m.type === 'twin') return mulTxt(modOn('twin') ? 1.5 + adj('twin') + adjHotCount(m) : adj('twin') > 0 ? 2.5 : 1.5);
   if (m.type === 'mason') return mulTxt(2 + 2 * adj('sieve'));
-  if (m.type === 'goldsmith') return mulTxt(3.5);
+  if (m.type === 'goldsmith') return mulTxt(GOLDSMITH_GOLD);
   if (m.type === 'prism') return '隣×' + fmtMult(Math.round(prismStep(m) * 10) / 10);
   if (m.type === 'lottery') return Math.round(Math.min(0.9, 0.15 + 0.25 * adj('cat')) * 100) + '%';
   if (m.type === 'vault' || m.type === 'exchange') {
@@ -4105,8 +4129,9 @@ function baseRerollCost() {
   return rerollPrice(0);
 }
 // エピック・レジェンドの機械を手に入れたときの実績
+// 素材ランクの上限（金）。2026-11-17：賢者の石で上限がなくなる仕組みはなくした
 function rankCap() {
-  return countPlaced('philosopher') > 0 ? 99 : 3;
+  return 3;
 }
 function rankMul() {
   return modOn('philosopher') && countPlaced('philosopher') > 0 ? 3 : RANK_MUL;
@@ -4647,22 +4672,42 @@ function mulEff(m, base, extra) {
   const p = ampPow(m);
   return p > 1 && f > 1 ? Math.pow(f, p) : f;
 }
-// プリズム（エピック・常時・2マス）：隣のプリズム1台ごとに、そのプリズムに触れている機械の種類の数だけ ×1.6（追加効果で ×1.8）。累乗で効く
-// 2026-11-17：×1.5 / ×1.7 → ×1.6 / ×1.8（×2 だと熱の盤面が76万倍で賢者の石を超えた。×1.6 で約5000倍）
-const PRISM_BASE = 1.6;
+// プリズム（エピック・常時・2マス）：周り2マス以内のプリズム1台ごとに、そのプリズムの範囲にある機械の種類の数だけ ×1.24（追加効果で ×1.4）。累乗で効く
+// 2026-11-17：隣だけ（×1.6）→ 周り2マス。範囲が広がって種類も強化される機械も増えたので、×1.6 のままだと1兆倍を超えた。×1.24 で熱の盤面が約7000倍
+const PRISM_BASE = 1.24;
 function prismStep(p) {
-  return Math.pow(modOn('prism') ? 1.8 : PRISM_BASE, prismKinds(p));
+  return Math.pow(modOn('prism') ? 1.4 : PRISM_BASE, prismKinds(p));
+}
+// 2026-11-17：隣だけ → 周り2マス以内（縦・横・斜め）。ベルトの曲がり角など「2〜3回当たるマス」は動く機械に使いたいので、
+// プリズムはベルトから1つ奥のマスに置いても届くようにした
+const PRISM_RANGE = 2;
+function inPrismRange(p, m) {
+  for (const [ax, ay] of cellsOf(p)) for (const [bx, by] of cellsOf(m)) if (Math.max(Math.abs(ax - bx), Math.abs(ay - by)) <= PRISM_RANGE) return true;
+  return false;
+}
+function prismTargets(p) {
+  return placedMachines().filter((o) => o !== p && !offline(o) && inPrismRange(p, o));
+}
+// 盤面のプリズム（盤面が変わるまで覚えておく。発動のたびに盤面を全部見ないように）
+function placedPrisms() {
+  const R = G.run;
+  if (R.prismVer !== R.gridVer || !R.prismList) {
+    R.prismVer = R.gridVer;
+    R.prismList = placedMachines().filter((o) => o.type === 'prism');
+  }
+  return R.prismList;
 }
 function prismFactor(m) {
   let f = 1;
-  for (const p of adjMachineList(m.x, m.y)) {
-    if (p.type !== 'prism' || offline(p)) continue;
+  for (const p of placedPrisms()) {
+    if (p === m || p.x < 0 || offline(p) || !inPrismRange(p, m)) continue;
     f *= prismStep(p);
   }
   return f;
 }
 function prismKinds(p) {
-  return new Set(adjMachineList(p.x, p.y).filter((o) => !offline(o)).map((o) => o.type)).size;
+  if (p.x < 0) return 0;
+  return new Set(prismTargets(p).map((o) => o.type)).size;
 }
 // 改造★1つにつき効果 +30%
 const STAR_STEP = 0.3;
@@ -4848,12 +4893,11 @@ function makeCtx(m, item, dry, pool, born) {
       checkUnit(item, pos);
     },
     // 錬金釜（ベルト型なので1個につき1回）。ランクが上がるたびに ×RANK_MUL（3回で ×8）、もう金なら ×GOLD_PASS。
-    // 錬金術師がいれば、ランクが上がるたびにさらに ×(1 + ALCH_STEP×台数)。溶解炉で下げたランクを上げ直したときも効く
-    // 追加効果：錬金釜「錬金の火」＝ランクが上がるたび熱+3 ／ 錬金術師「大錬成」＝錬金術師が1台多いものとして数え、金の ×4 にも乗る
+    // 錬金術師がいれば、ランクが上がるたびにさらに ×ALCH_MUL^台数。溶解炉で下げたランクを上げ直したときも効く
+    // 追加効果：錬金釜「錬金の火」＝ランクが上がるたび熱+3 ／ 錬金術師「大錬成」＝錬金術師が1台多いものとして数え、金の ×5 にも乗る
     transmute() {
-      const placed = countPlaced('alchemist');
-      const a = placed > 0 ? placed + (modOn('alchemist') ? 1 : 0) : 0;
-      const alch = 1 + ALCH_STEP * a;
+      const a = alchCount();
+      const alch = alchMul();
       if (item.tier >= rankCap()) {
         this.mul(GOLD_PASS);
         if (a > 0 && modOn('alchemist')) this.boost(alch, '大錬成', '#c9a2ff');
@@ -4865,16 +4909,17 @@ function makeCtx(m, item, dry, pool, born) {
       const t = tierOf(item.tier);
       this.boost(rankMul() * alch, a > 0 ? `${t.name}・錬成` : t.name, a > 0 ? '#c9a2ff' : t.color);
     },
-    // 賢者の石（レジェンド・ベルト型）：一気に金にする（もう金なら2段）。1段ごとに ×2（「真理」で ×3）と錬金術師の倍率がかかる。
-    // 置いているあいだはランクの上限がない（rankCap）ので、このあとの錬金釜でも上がり続ける
+    // 賢者の石（レジェンド・ベルト型）：一気に金にする。1段ごとに ×2（「真理」で ×3）と錬金術師の倍率がかかる。
+    // もう金なら、2段上がったのと同じ倍率（ランクは金のまま）。2026-11-17：金より上のランクをなくしたので「2段上げる」から変更
     philo() {
-      const steps = item.tier < 3 ? 3 - item.tier : 2;
-      const placed = countPlaced('alchemist');
-      const a = placed > 0 ? placed + (modOn('alchemist') ? 1 : 0) : 0;
-      for (let i = 0; i < steps; i++) this.rankUp();
+      const up = item.tier < 3 ? 3 - item.tier : 0;
+      const steps = up || PHILO_GOLD_STEPS;
+      const a = alchCount();
+      for (let i = 0; i < up; i++) this.rankUp();
+      if (up && !dry) unlockAch('philo_gold');
       if (a > 0 && !dry) unlockAch('alchemy3');
       const t = tierOf(item.tier);
-      this.boost(Math.pow(rankMul() * (1 + ALCH_STEP * a), steps), `${t.name}${a > 0 ? '・錬成' : ''}`, a > 0 ? '#c9a2ff' : t.color);
+      this.boost(Math.pow(rankMul() * alchMul(), steps), `${t.name}${a > 0 ? '・錬成' : ''}`, a > 0 ? '#c9a2ff' : t.color);
     },
     // 溶解炉：素材ランクを1つ下げる
     rankDown() {
@@ -4963,19 +5008,13 @@ function makeCtx(m, item, dry, pool, born) {
     adjKinds() {
       return new Set(adjMachineList(m.x, m.y).filter((o) => !offline(o)).map((o) => o.type)).size;
     },
-    // 急冷槽：熱を倍率に変えて（quenchMul：熱の3乗で伸びる）、熱を0に
-    // 追加効果「余熱」：急冷しても熱の半分が残る
-    // 触媒は「もう1回急冷する」：1回目で熱を使い切るので、余熱がなければ2回目は効かない（2乗にはならない）
+    // 急冷槽：熱を倍率に変えて（quenchMul：熱の2乗で伸びる。追加効果「瞬間冷却」で2倍）、熱を0に
+    // 触媒は「もう1回急冷する」：1回目で熱を使い切るので、2回目は効かない（2乗にはならない）
     quench() {
       const h = item.heat;
-      const keep = (x) => (modOn('quench') ? Math.floor(x / 2) : 0);
-      let f = quenchMul(h);
-      let rest = keep(h);
-      if (item.cata > 0) {
-        f *= useCatalyst(item, quenchMul(rest));
-        rest = keep(rest);
-      }
-      item.heat = rest;
+      const f = quenchMul(h);
+      if (item.cata > 0) useCatalyst(item, 1);
+      item.heat = 0;
       if (!dry) {
         if (h >= 10) unlockAch('quench10');
         if (h >= 25) unlockAch('quench25');
@@ -5022,7 +5061,6 @@ function makeCtx(m, item, dry, pool, born) {
     },
     rankUp() {
       item.tier = Math.min(rankCap(), item.tier + 1);
-      if (item.tier >= 4 && !dry) unlockAch('philo_gold');
       if (dry) return;
       const c = tierOf(item.tier).color;
       item.pop = 1.3;
@@ -7303,7 +7341,7 @@ const UI = (() => {
     return `<div class="hand" id="hand-zone">
         <div class="side-h"><b>手持ち</b><span class="hand-n ${room <= 0 ? 'full' : ''}" title="持っている機械（盤面＋手持ち） / 持てる台数（設置枠 +${R.bench}台）">所持 ${ownedCount()}/${ownedCap()}台</span>${R.kits ? `<span class="kit-chip" title="改造キット（「+」「×」の機械を選んで使う）"><i class="ic ic-wrench"></i>×${R.kits}</span>` : ''}</div>
         <div class="tray">${tiles || `<span class="empty">${build ? 'ショップで買った機械がここに入ります' : 'なし'}</span>`}</div>
-        ${build ? `<div class="hand-foot">${slotBtnHTML(R)}<span class="stash-hint">盤面の機械をここへドラッグ → 手持ちに戻す</span></div>` : ''}
+        ${build ? `<div class="hand-foot">${slotBtnHTML(R)}<span class="stash-hint">盤面の機械をここへドラッグ → 手持ちに戻す</span><span class="touch-hint">タップで選んで盤面をタップ／長押しでドラッグ</span></div>` : ''}
       </div>`;
   }
   function speedHTML() {
@@ -7508,7 +7546,12 @@ const UI = (() => {
         return `持ちコイン ${R.coins}枚 → <b>×${lm ? fmtMult(Math.round(lm * 100) / 100) : 1}</b>`;
       }
       case 'twin':
-        return placed ? (countAdjType(m.x, m.y, 'twin') + (modOn('twin') ? adj((o) => o.type !== 'twin' && MACHINES[o.type].hot) : 0) ? '隣に相方あり → <b>×2.5</b>' : '隣に相方なし → ×1.5') : '';
+        if (!placed) return '';
+        if (modOn('twin')) {
+          const n = countAdjType(m.x, m.y, 'twin') + adj((o) => o.type !== 'twin' && MACHINES[o.type].hot);
+          return `隣の炉 ${n}台 → <b>×${fmtMult(1.5 + n)}</b>`;
+        }
+        return countAdjType(m.x, m.y, 'twin') ? '隣に相方あり → <b>×2.5</b>' : '隣に相方なし → ×1.5';
       case 'mason':
         return placed ? `隣のふるい ${countAdjType(m.x, m.y, 'sieve')}台 → 石なら <b>×${fmtMult(2 + 2 * countAdjType(m.x, m.y, 'sieve'))}</b>` : '';
       case 'bellows':
@@ -7539,18 +7582,16 @@ const UI = (() => {
       case 'prism': {
         if (!placed) return '';
         const n = prismKinds(m);
-        return `隣の機械 ${n}種類 → 隣の「+」「×」の効果が <b>×${fmtMult(Math.round(prismStep(m) * 100) / 100)}</b>`;
+        return `周り2マスの機械 ${n}種類 → その範囲の「+」「×」の効果が <b>×${fmtMult(Math.round(prismStep(m) * 100) / 100)}</b>`;
       }
       case 'alchemist': {
         const p = countPlaced('alchemist') || 1;
         const a = p + (modOn('alchemist') ? 1 : 0);
-        return `錬金術師 ${p}台${a > p ? '（大錬成で+1台ぶん）' : ''} → ランクが上がるたび <b>×${fmtMult(rankMul() * (1 + ALCH_STEP * a))}</b>（錬金釜の ×${rankMul()} 込み。錬金釜 ${countPlaced('transmuter')}台${rankCap() > 3 ? '・賢者の石でランクの上限なし' : ''}）`;
+        return `錬金術師 ${p}台${a > p ? '（大錬成で+1台ぶん）' : ''} → ランクが上がるたび <b>×${fmtMult(rankMul() * Math.pow(ALCH_MUL, a))}</b>（錬金釜の ×${rankMul()} 込み。錬金釜 ${countPlaced('transmuter')}台）`;
       }
       case 'transmuter': {
         const p = countPlaced('alchemist');
-        const a = p ? p + (modOn('alchemist') ? 1 : 0) : 0;
-        const cap = rankCap() > 3 ? '（賢者の石：金のあとも上がり続ける）' : '';
-        return a ? `錬金術師 ${p}台：ランクが上がるたび <b>×${fmtMult(rankMul() * (1 + ALCH_STEP * a))}</b>${cap}` : `ランクが上がるたび <b>×${rankMul()}</b>${cap}`;
+        return p ? `錬金術師 ${p}台：ランクが上がるたび <b>×${fmtMult(rankMul() * alchMul())}</b>` : `ランクが上がるたび <b>×${rankMul()}</b>`;
       }
       case 'resonator':
         return countPlaced('splitter') + countPlaced('duplicator') || modOn('resonator') ? '' : '分裂ゲート・複製機がないので、今は +2 だけ';
@@ -7727,7 +7768,7 @@ const UI = (() => {
       納期達成の報酬：コイン（期が進むほど多い）＋ 超過ボーナス（ノルマの2倍ごとに+1）＋ 前倒しボーナス（残り1日につき+${EARLY_COIN}）＋ 豪華な日報ボーナス。</p>
       <p><b>5. 毎日変わるもの</b>：2日目からは盤面に<b>特設マス</b>が出ます（★強化マス＝置いた機械が2回発動、✕故障マス＝置いた機械が止まる）。日が終わるたびに<b>日報ボーナス</b>を3つから1つ選べます（改造キット・機械・ノルマ減など）。${BOSS_EVERY}日ごとに<b>ボス日</b>（特殊ルール）。</p>
       <p><b>組み合わせ</b>：1台では地味でも、組むと化ける機械がたくさんあります。説明文の「何に反応するか」に注目すると、機械どうしのつながりが見えてきます。自分だけの必勝パターンを見つけよう。</p>
-      <p><b>素材ランク</b>：錬金釜（ベルト型）を1台通るごとに 石→銅→銀→金 と上がり、上がるたびに価値 ×${RANK_MUL}（金まで上げると ×8）。もらった倍率は、溶解炉でランクを下げても残ります。<b>賢者の石</b>（レジェンド）があると、金のあとも 白金→虹→… と上がり続けます。</p>
+      <p><b>素材ランク</b>：錬金釜（ベルト型）を1台通るごとに 石→銅→銀→金 と上がり、上がるたびに価値 ×${RANK_MUL}（金まで上げると ×8）。もらった倍率は、溶解炉でランクを下げても残ります。<b>錬金術師</b>がいると、ランクが上がるたびにさらに ×${ALCH_MUL}（台数ぶん掛け算）。</p>
       <p><b>完走とハイスコアモード</b>：ゴールは第${PHASES}期の納期。後の期ほどノルマが急に重くなり、研究なしではまず届きません。届かなかったランでも特許はたまるので、研究を進めて少しずつ遠くの期をめざします（後の期ほど、納期達成の特許も多い）。<br>
       完走したら、<b>エンドレス</b>（第${PHASES + 1}期から、ノルマがどんどん重くなる期をどこまで続けられるか）か、<b>ハイスコアモード</b>（${HISCORE_DAYS}日間、ノルマなしで出荷した合計を競う）に挑めます。</p>
       <p><b>レバレッジ</b>（第3期まで届くと使える）：期の最初の日に、「稼働開始」ボタンの上の ◀ ▶ で Lv を決められます。1つ上げるごとに <b>その期のノルマ×${LEV_QMUL}</b>、そのかわり <b>納期達成のコイン+50%・特許+50%</b>。</p>
@@ -9073,6 +9114,13 @@ const UI = (() => {
         press = null; // 空きマスから動かしただけ
         return;
       }
+      // タッチの手持ち：長押しする前に縦へ動かしたら、手持ちのスクロール（ドラッグにしない。ブラウザがスクロールして pointercancel が届く）
+      if (press.kind === 'tray' && press.touch && !press.armed && Math.abs(dy) > Math.abs(dx) && trayScrollable()) {
+        clearLift(press);
+        press = null;
+        return;
+      }
+      clearLift(press);
       // ショップのカードの列をスクロールする向き（PC：横／スマホ：縦）に指を動かしたときは、ブラウザがスクロールにして
       // pointercancel が届く（そこでドラッグをやめる）。それ以外の向きならドラッグになる
       press.moved = true;
@@ -9102,6 +9150,7 @@ const UI = (() => {
     if (!press || e.pointerId !== press.id) return;
     const p = press;
     const zone = dropZone(e);
+    clearLift(p);
     press = null;
     // タッチにはカーソルがないので、指を離したら「置いたときの見え方」を消す（その場に残ると紛らわしい）
     const clearHover = () => {
@@ -9160,6 +9209,7 @@ const UI = (() => {
     G.dirty = true;
   }
   function cancelDrag() {
+    clearLift(press);
     press = null;
     if (G.drag) {
       G.drag = null;
@@ -9226,7 +9276,30 @@ const UI = (() => {
     if (!R || R.demo || G.state !== 'build' || (e.pointerType === 'mouse' && e.button !== 0)) return;
     Sfx.unlock();
     const t = e.target.closest('[data-tray]');
-    if (t) beginPress(e, { kind: 'tray', uid: +t.dataset.tray });
+    if (!t) return;
+    beginPress(e, { kind: 'tray', uid: +t.dataset.tray });
+    // タッチ：縦に指を動かすと手持ちのスクロール。少し長押し（0.25秒）すると持ち上がり、そのままドラッグできる（横に動かしてもドラッグ）
+    if (press && press.touch) {
+      const p = press;
+      p.el = t;
+      p.armT = setTimeout(() => {
+        if (press !== p || p.moved) return;
+        p.armed = true;
+        t.classList.add('lift');
+        if (navigator.vibrate) navigator.vibrate(12);
+      }, LIFT_MS);
+    }
+  }
+  const LIFT_MS = 250;
+  // 手持ちの欄がスクロールできるか（中身があふれているか）。あふれていなければ、縦に動かしてもすぐドラッグ
+  function trayScrollable() {
+    const tr = side.querySelector('.tray');
+    return !!tr && tr.scrollHeight > tr.clientHeight + 2;
+  }
+  function clearLift(p) {
+    if (!p) return;
+    clearTimeout(p.armT);
+    if (p.el) p.el.classList.remove('lift');
   }
   function setSpeed(s) {
     G.speedMul = s;
@@ -9282,6 +9355,10 @@ const UI = (() => {
     window.addEventListener('pointercancel', (e) => {
       if (press && e.pointerId === press.id) cancelDrag();
     });
+    // 手持ちを長押しで持ち上げた（またはドラッグを始めた）あとは、指を縦に動かしてもスクロールさせない
+    side.addEventListener('touchmove', (e) => {
+      if (press && press.kind === 'tray' && (press.armed || press.moved) && e.cancelable) e.preventDefault();
+    }, { passive: false });
     // ドラッグを終えた直後の click は無視する（手持ちの選択が切り替わったりしないように）
     document.addEventListener('click', (e) => {
       if (suppressClick) {
