@@ -13,14 +13,14 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="コンベア錬金">
 <meta name="twitter:description" content="ベルトの脇に機械を並べ、流れる原料を足し算→掛け算で膨らませる工場系ローグライク。日替わりチャレンジも。">
-<link rel="canonical" href="https://goldrail777.github.io/096/">
-<meta property="og:url" content="https://goldrail777.github.io/096/">
-<meta property="og:image" content="https://goldrail777.github.io/096/og.png">
+<link rel="canonical" href="https://goldrail777.github.io/kr/">
+<meta property="og:url" content="https://goldrail777.github.io/kr/">
+<meta property="og:image" content="https://goldrail777.github.io/kr/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="https://goldrail777.github.io/096/og.png">
+<meta name="twitter:image" content="https://goldrail777.github.io/kr/og.png">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"VideoGame","url":"https://goldrail777.github.io/096/","name":"コンベア錬金","description":"ベルトの脇に機械を並べ、流れる原料を足し算→掛け算で膨らませる工場系ローグライク。4日ごとの納期までにノルマを出荷し、機械の組み合わせを見つけて限界を超えろ。","genre":["ローグライク","ストラテジー","シミュレーション"],"gamePlatform":"Webブラウザ","applicationCategory":"Game","operatingSystem":"Windows, macOS, iOS, Android","inLanguage":"ja","playMode":"SinglePlayer","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}}
+{"@context":"https://schema.org","@type":"VideoGame","url":"https://goldrail777.github.io/kr/","name":"コンベア錬金","description":"ベルトの脇に機械を並べ、流れる原料を足し算→掛け算で膨らませる工場系ローグライク。4日ごとの納期までにノルマを出荷し、機械の組み合わせを見つけて限界を超えろ。","genre":["ローグライク","ストラテジー","シミュレーション"],"gamePlatform":"Webブラウザ","applicationCategory":"Game","operatingSystem":"Windows, macOS, iOS, Android","inLanguage":"ja","playMode":"SinglePlayer","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}}
 </script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314161d'/%3E%3Crect x='6' y='38' width='52' height='14' rx='7' fill='%233a4152'/%3E%3Cg fill='%2314161d'%3E%3Crect x='14' y='41' width='3' height='8'/%3E%3Crect x='24' y='41' width='3' height='8'/%3E%3Crect x='34' y='41' width='3' height='8'/%3E%3Crect x='44' y='41' width='3' height='8'/%3E%3C/g%3E%3Ccircle cx='32' cy='22' r='13' fill='%23ffd447'/%3E%3Ccircle cx='32' cy='22' r='8' fill='none' stroke='%23b07800' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -614,7 +614,7 @@ body.is-title #board-wrap { flex: 1; }
 body.is-title #side, body.is-title #dock, body.is-title #foot, body.is-title #hud { display: none; }
 body.is-title #board { cursor: default; }
 /* 高さのとても低い画面（横向きのスマホなど）：盤面は左いっぱい、右に手持ち（上）とショップ（下） */
-body.short #main { grid-template-rows: minmax(0, .8fr) minmax(0, 1.2fr); gap: 6px; padding: 6px; }
+body.short #main { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; padding: 6px; }
 body.short #board-wrap { grid-row: 1 / 3; }
 body.short #dock { grid-column: 2; grid-row: 2; padding: 4px 8px 6px; }
 body.short #dock .card { min-width: 132px; }
@@ -984,7 +984,7 @@ body.shop-lean #dock .card > .detail { visibility: hidden; }
 .start-dock.sheet { position: static; margin: 8px 0 0; padding: 8px; background: #12141a; border-radius: 10px; }
 
 /* ---------- スマホ・縦長 ---------- */
-@media (max-width: 760px), (orientation: portrait) and (max-width: 1100px) {
+@media (orientation: portrait) and (max-width: 1100px) {
   html, body { overflow: hidden; height: 100%; }
   #app { height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
   #hud { min-height: 48px; height: 48px; flex: none; flex-wrap: nowrap; gap: 10px; padding: 4px 8px; padding-top: max(4px, env(safe-area-inset-top)); }
@@ -1112,7 +1112,7 @@ body.shop-lean #dock .card > .detail { visibility: hidden; }
   .hud-block .big { font-size: 15px; }
 }
 /* 横向きのスマホなど、高さがとても低い画面 */
-@media (min-width: 761px) and (max-height: 560px) {
+@media (orientation: landscape) and (max-height: 560px) {
   #hud { min-height: 44px; padding: 3px 12px; }
   .hud-block .big { font-size: 17px; }
   #overlay-card.result { padding: 12px 16px; }
@@ -1191,7 +1191,7 @@ body.shop-lean #dock .card > .detail { visibility: hidden; }
 .gacha-got span { font-size: 11px; color: var(--rc); }
 .gacha-got em { margin-left: auto; font-style: normal; font-size: 11px; color: var(--muted); }
 .cap-note { font-size: 11.5px; color: var(--muted); margin-bottom: 10px; }
-@media (max-width: 760px), (orientation: portrait) and (max-width: 1100px) {
+@media (orientation: portrait) and (max-width: 1100px) {
   .gacha-got { padding: 3px 8px; margin-bottom: 5px; gap: 8px; }
   .gacha-got .glyph { width: 30px; height: 30px; }
   .gacha-box { padding: 10px; }
@@ -1200,6 +1200,103 @@ body.shop-lean #dock .card > .detail { visibility: hidden; }
 /* 高さの低い画面では、結果の画面のヒントを出さない（スクロールしないで見られるように） */
 @media (max-height: 700px) {
   .res-r .tipbox.pc-only { display: none; }
+}
+
+/* スマホ縦：ショップを閉じると、手持ちが横幅いっぱいになる */
+.shop-toggle { display: none; }
+@media (orientation: portrait) and (max-width: 1100px) {
+  .shop-toggle { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 8px; border: 1px solid #4a5163; background: #232838; color: var(--text); font: inherit; font-size: 12px; font-weight: 900; cursor: pointer; }
+  body.shop-closed #main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) 48px; }
+  body.shop-closed #dock { grid-column: 1; grid-row: 2; }
+  body.shop-closed #dock .dock-body { display: none; }
+  body.shop-closed #side { grid-column: 1; grid-row: 3; }
+  body.shop-closed #foot { grid-row: 4; }
+  body.shop-closed #detail-bar { grid-column: 1; grid-row: 2 / 4; }
+  body.shop-closed #side .side-h { flex-direction: row; align-items: center; gap: 10px; font-size: 12px; }
+  body.shop-closed #side .side-h b { font-size: 14px; }
+  body.shop-closed #side .tray { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 6px; align-content: start; }
+  body.shop-closed #side .tile .glyph { width: 50px; height: 50px; }
+  body.shop-closed .tile span { font-size: 11px; }
+  body.shop-closed .hand-foot { flex-direction: row; align-items: center; }
+  body.shop-closed .slot-btn { width: auto; align-items: flex-start; padding: 4px 10px; }
+}
+/* 横向きのスマホ（高さが低い）：結果の画面を詰める */
+@media (orientation: landscape) and (max-height: 560px) {
+  #overlay { padding: 6px; }
+  #overlay-card { max-height: 96vh; max-height: 96dvh; }
+  #overlay-card.result h2 { font-size: 18px; margin-bottom: 6px; }
+  .res-grid { gap: 10px; }
+  .res-grid .phase-prog { padding: 6px 10px; margin-bottom: 6px; }
+  .coin-box { padding: 6px 10px; }
+  .cb-v { font-size: 22px; }
+  .reward { padding: 6px 10px; }
+  .reward .desc { -webkit-line-clamp: 1; }
+  .res-r .tipbox.pc-only { display: none; }
+}
+
+/* 横向きのスマホ（body.short）：右上は手持ちだけ。機械の詳細は、タップしたときに右の列に重ねて出す */
+body.short #side .side-b { display: none; }
+body.short #side .side-a { max-height: none; flex: 1; }
+body.short #side .tray { max-height: none; }
+body.short #detail-bar { display: block; position: relative; grid-column: 2; grid-row: 1 / 3; z-index: 6; background: #161922; border: 2px solid var(--coin); border-radius: 12px; padding: 8px 10px; box-shadow: 0 6px 20px #000a; overflow-y: auto; font-size: 13px; line-height: 1.5; min-height: 0; }
+body.short #detail-bar.shop { border-color: var(--blue); }
+body.short #detail-bar.hidden { display: none; }
+body.short #detail-bar .hd { display: flex; gap: 10px; align-items: center; margin-bottom: 4px; padding-right: 38px; }
+body.short #detail-bar .hd .glyph { width: 42px; height: 42px; flex: none; }
+body.short #detail-bar .nm { font-weight: 900; font-size: 15px; }
+body.short #detail-bar .meta { font-size: 11.5px; }
+body.short .db-x { position: absolute; right: 6px; top: 6px; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: #232734; color: var(--text); font-size: 16px; cursor: pointer; z-index: 1; }
+body.short .db-btns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+body.short .db-btns .btn { flex: none; min-height: 36px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 6px; }
+body.short .db-btns .buy { width: 100%; }
+body.short .db-place { margin: -2px 40px 6px 0; padding: 4px 8px; border-radius: 8px; background: #2a2410; color: #ffe9a0; font-size: 12px; font-weight: 700; }
+/* 横向きのスマホ：上の帯（HUD）を1段にまとめる（速度は稼働中の右下、サウンドはメニューにもある） */
+@media (orientation: landscape) and (max-height: 560px) {
+  #hud { flex-wrap: nowrap; gap: 12px; min-height: 40px; height: 40px; padding: 2px 10px; }
+  #hud .hud-opt { display: none !important; }
+  #hud-qlabel { display: none; }
+  .hud-block .label { font-size: 9px; }
+  .hud-block .big { font-size: 16px; }
+  .hud-block.quota { min-width: 0; max-width: none; }
+  .hud-tools button { min-height: 32px; padding: 2px 10px; }
+}
+/* 横向きのスマホで高さがとても低いとき（420px以下）：結果・ガチャの画面をさらに詰める（入りきらない分はスクロール） */
+@media (orientation: landscape) and (max-height: 420px) {
+  #overlay-card { padding: 10px 14px; }
+  #overlay-card.result h2, #overlay-card h2 { font-size: 16px; margin-bottom: 4px; }
+  .res-chips, .res-grid .pp-note, .cb-run, .gb-n { display: none; }
+  .res-grid .result-big { font-size: 20px; margin-bottom: 2px; }
+  .result-big .rb-l { font-size: 10px; }
+  .res-grid .phase-prog { padding: 4px 8px; margin-bottom: 4px; }
+  .pp-bar { margin: 3px 0; }
+  .cb-parts span { font-size: 10px; }
+  #overlay-card .next-phase { font-size: 11px; padding: 4px 8px; margin-bottom: 4px; }
+  .reward-h { font-size: 13px; margin-bottom: 4px; }
+  .rewards { gap: 4px; }
+  .reward { padding: 4px 8px; }
+  .reward .glyph { width: 30px; height: 30px; }
+  .reward .name { font-size: 13px; }
+  .gacha-box { padding: 8px; }
+  .gb-d { font-size: 11px; margin: 2px 0 6px; }
+  .btn.gacha-btn { padding: 8px; font-size: 15px; }
+  .gacha-got { padding: 2px 8px; margin-bottom: 4px; }
+  .gacha-got .glyph { width: 28px; height: 28px; }
+  .cap-open { min-height: 0; }
+  .cap-stage { top: 0; height: 110px; }
+  .cap-ball .ic { width: 80px; height: 80px; }
+  .cap-card .glyph { width: 52px; height: 52px; margin: 2px auto 4px; }
+  .cap-name { font-size: 19px; }
+  .cap-desc { font-size: 11.5px; margin: 4px 0 8px; line-height: 1.45; }
+  .cap-note { margin-bottom: 6px; }
+  .patent-gain { padding: 5px 10px; margin-bottom: 4px; }
+  .patent-gain .pg-v { font-size: 22px; }
+  .over-stats > div { padding: 2px 0; font-size: 12px; }
+  .daily-box { padding: 5px 8px; }
+  .share-row { gap: 6px; }
+  .share-row .btn, .over-btns .btn { padding: 6px 8px; font-size: 13px; }
+  .over-btns { gap: 6px; margin-top: 6px; }
+  .btn.research-go.big { padding: 6px 10px; }
+  .go-hint, .miss-line { font-size: 12px !important; margin: 2px 0 !important; }
 }
 </style>
 </head>
@@ -1328,7 +1425,7 @@ function slotCost(bought) {
   return niceRound(SLOT_BASE * Math.pow(SLOT_GROWTH, bought));
 }
 // 公開している場所（結果のポスト・戦績カードに入れる）。tools/build-share.js の --url= で書き換わる
-const GAME_URL = 'https://goldrail777.github.io/096/';
+const GAME_URL = 'https://goldrail777.github.io/kr/';
 
 // ===== 機械 =====
 // apply(c) の c は game.js の makeCtx() を参照
@@ -1357,7 +1454,7 @@ function cautiousMean(p, f) {
 const THUNDER_K = 3; // 落雷：n回目の雷は ×(1 + K/n)。何回でも効くが1発ずつ伸びが緩くなる（合計は回数の3乗くらい）
 // 呪いの炉の消滅率：25%。隣の招き猫1匹につき -15%、追加効果「魔除け」で -10%（最低5%）
 function cursedRisk(cats, mod) {
-  return Math.max(0.05, 0.25 - 0.15 * cats - (mod ? 0.1 : 0));
+  return Math.max(0.05, 0.2 - 0.15 * cats - (mod ? 0.1 : 0));
 }
 const MACHINES = {
   // ----- 基本 -----
@@ -1369,19 +1466,19 @@ const MACHINES = {
   },
   cooler: {
     name: '冷却塔', glyph: '冷', color: '#5aa9de', rarity: 2, cost: 6, kind: 'passive', family: 'base',
-    desc: '<i>常時</i>：隣接する「×」系の機械の倍率 <b>+1</b>（×2→×3）。ただし <b>隣の「炉」は熱を出さなくなる</b>',
+    desc: '<i>常時</i>：隣接する「×」系の機械の倍率 <b>+2</b>（×2→×4）。ただし <b>隣の「炉」は熱を出さなくなる</b>',
     mod: { name: '断熱', desc: '隣の「炉」も熱を出すようになる（代償がなくなる）' },
     apply: null,
   },
   prism: {
     name: 'プリズム', glyph: '晶', color: '#7fb8e6', rarity: 4, cost: 11, kind: 'passive', locked: true, size: 2, cells: 2, family: 'base',
-    desc: '<i>常時</i>：隣に触れている機械の <b>種類の数だけ</b>、隣の「+」「×」の機械の効果を <b>×1.5 ずつ</b> 強くする（累乗：2種類で×2.25、4種類で×5、6種類で×11）。違う機械で囲むほど強い。<b>大型：2マス・設置枠2つ</b>（隣が最大6マス）',
-    mod: { name: '全反射', desc: '1種類ごとに ×1.5 → <b>×1.7</b>（6種類で×24）' },
+    desc: '<i>常時</i>：隣に触れている機械の <b>種類の数だけ</b>、隣の「+」「×」の機械の効果を <b>×1.6 ずつ</b> 強くする（累乗：2種類で×2.6、4種類で×6.6、6種類で×17）。ベルトの上の機械も数える。違う機械で囲むほど強い。<b>大型：2マス・設置枠2つ</b>（隣が最大6マス）',
+    mod: { name: '全反射', desc: '1種類ごとに ×1.6 → <b>×1.8</b>（6種類で×34）' },
     apply: null,
   },
   amp: {
     name: '増幅器', glyph: '増', color: '#e0609a', rarity: 5, cost: 14, kind: 'passive', locked: true, upkeep: 2, size: 2, cells: 2, family: 'base',
-    desc: '<i>常時</i>：隣接する「+」「×」の機械の効果が <b>4倍</b>（+2→+8、×2→×5、×4→×13）。<b>大型：2マス・設置枠2つ</b>（隣が最大6マスになる）。<b>維持費：稼働する日ごとにコイン2枚</b>（払えない日は止まる）',
+    desc: '<i>常時</i>：隣接する「×」の機械の効果が <b>2.5乗</b>（×2→×5.7、×12→×499、急冷槽の熱8 ×33→×6255）。「+」の機械は <b>4倍</b>（+2→+8）。倍率の大きい機械の隣ほど伸びる。<b>大型：2マス・設置枠2つ</b>（隣が最大6マスになる）。<b>維持費：稼働する日ごとにコイン2枚</b>（払えない日は止まる）',
     mod: { name: '省エネ', desc: '維持費がなくなる' },
     apply: null,
   },
@@ -1412,7 +1509,7 @@ const MACHINES = {
   },
   bellows: {
     name: 'ふいご', glyph: '鞴', color: '#c7643a', rarity: 2, cost: 5, kind: 'passive', locked: true, family: 'heat',
-    desc: '<i>常時</i>：隣接する「炉」の機械（溶鉱炉・双子炉・溶解炉・呪いの炉）が発動するたび、アイテムに <b>熱+1</b> を追加',
+    desc: '<i>常時</i>：隣接する「炉」の機械（溶鉱炉・双子炉・溶解炉・呪いの炉）が発動するたび、アイテムに <b>熱+2</b> を追加',
     mod: { name: '送風', desc: '隣の <b>「×」の機械すべて</b>（金細工師・宝くじ機・石工など）が発動するたびに熱+1' },
     apply: null,
   },
@@ -1497,13 +1594,13 @@ const MACHINES = {
   },
   cursed: {
     name: '呪いの炉', glyph: '呪', color: '#8a1f2a', rarity: 4, cost: 10, kind: 'mult', locked: true, hot: true, family: 'luck',
-    desc: '価値 <b>×5</b>（熱+1）。ただし <b>25%</b>でアイテムが消滅する（隣の招き猫1匹につき -15%）',
-    mod: { name: '魔除け', desc: '消滅率 <b>-10%</b>（25% → 15%。招き猫と合わせて最低5%まで）' },
+    desc: '価値 <b>×8</b>（熱+1）。ただし <b>20%</b>でアイテムが消滅する（隣の招き猫1匹につき -15%）',
+    mod: { name: '魔除け', desc: '消滅率 <b>-10%</b>（20% → 10%。招き猫と合わせて最低5%まで）' },
     apply: (c) => {
       const p = cursedRisk(c.cats(), c.mod());
-      if (c.dry) return c.scale(c.eff(5) * (1 - p) * (1 - p)); // 見込みは手堅く（消えるぶんを2回ぶん引く）
+      if (c.dry) return c.scale(c.eff(8) * (1 - p) * (1 - p)); // 見込みは手堅く（消えるぶんを2回ぶん引く）
       if (Math.random() < p) return c.destroy();
-      return c.mul(5);
+      return c.mul(8);
     },
   },
   // ----- 雷雲：アイテムを増やして、ベルト全体にかかる雷で一網打尽 -----
@@ -1571,7 +1668,7 @@ const MACHINES = {
     },
   },
   piggy: {
-    name: '貯金箱', glyph: '貯', color: '#6b8e23', rarity: 2, cost: 5, kind: 'passive', family: 'bank',
+    name: '貯金箱', glyph: '貯', color: '#6b8e23', rarity: 3, cost: 5, kind: 'passive', family: 'bank',
     desc: '<i>常時</i>（どこに置いても）：1日の終わりに、持ちコイン10枚ごとに <b>+1枚</b>（上限なし。貯めるほど増える）',
     mod: { name: '壁掛け', desc: '<b>設置枠を使わなくなる</b>（置いても枠が減らない）' },
     apply: null,
@@ -1585,9 +1682,9 @@ const MACHINES = {
   },
   artisan: {
     name: '熟練工', glyph: '匠', color: '#9a6a3a', rarity: 3, cost: 8, kind: 'mult', family: 'rep',
-    desc: '<b>同じアイテム</b>に当たるたびに倍率が上がる：1回目 <b>×1.4</b>、2回目 ×1.8、3回目 ×2.2…（2回で合計×2.5、4回で×14、6回で×150）。1台だと溶鉱炉より弱いが、反響レールで回数を増やすと化ける',
+    desc: '<b>同じアイテム</b>に当たるたびに倍率が上がる：1回目 <b>×1.5</b>、2回目 ×2、3回目 ×2.5…（2回で合計×3、4回で×22、6回で×315）。1台だと溶鉱炉より弱いが、反響レールで回数を増やすと化ける',
     mod: { name: '金の匠', desc: '<b>金</b>のアイテムなら「当たった回数 +2」から数え始める' },
-    apply: (c) => c.mul(1 + 0.4 * (c.hitCount() + c.hitBonus())),
+    apply: (c) => c.mul(1 + 0.5 * (c.hitCount() + c.hitBonus())),
   },
   pump: {
     name: '還流ポンプ', glyph: '環', color: '#0f9d8a', rarity: 4, cost: 11, kind: 'special', locked: true, belt: true, family: 'rep',
@@ -1616,35 +1713,35 @@ const MACHINES = {
   },
   crown: {
     name: '王冠', glyph: '冠', color: '#ffc21f', rarity: 5, cost: 14, locked: true, kind: 'passive', family: 'base',
-    desc: '<i>常時</i>（どこに置いても）：出荷のとき、盤面の機械の <b>種類1つごとに ×2</b>（4種類で×16、8種類で×256）。いろいろな機械を混ぜるほど強い。王冠が2台なら効果も2倍',
-    mod: { name: '戴冠', desc: '1種類ごとに ×2 → <b>×2.2</b>（8種類で×549）' },
+    desc: '<i>常時</i>（どこに置いても）：出荷のとき、盤面の機械の <b>種類1つごとに ×2.5</b>（4種類で×39、8種類で×1526）。<b>大型（2マス）の機械は2種類分</b> に数える。いろいろな機械を混ぜるほど強い。王冠が2台なら効果も2倍',
+    mod: { name: '戴冠', desc: '1種類ごとに ×2.5 → <b>×2.8</b>（8種類で×3778）' },
     apply: null,
   },
   clock: {
     name: '時計塔', glyph: '時', color: '#8fa6c8', rarity: 5, cost: 15, locked: true, kind: 'passive', size: 2, cells: 2, upkeep: 3, family: 'rep',
-    desc: '<i>常時</i>：隣の機械の <b>発動回数 +1</b>（強化マスと同じ。ベルト型も）。<b>大型：2マス・設置枠2つ</b>（隣が最大6マス）。<b>維持費：稼働する日ごとにコイン3枚</b>',
+    desc: '<i>常時</i>：隣の機械の <b>発動回数が2倍</b>（ベルト型も。強化マスと重なれば 2回→4回）。倍率の大きい機械を囲むほど強い。<b>大型：2マス・設置枠2つ</b>（隣が最大6マス）。<b>維持費：稼働する日ごとにコイン3枚</b>',
     mod: { name: '永久機関', desc: '維持費がなくなる' },
     apply: null,
   },
 };
-const CROWN_STEP = 2; // 王冠：1種類ごとの出荷倍率（掛け算。追加効果で 2.2）
+const CROWN_STEP = 2.5; // 王冠：1種類ごとの出荷倍率（掛け算。追加効果で 2.8。2026-11-17：2 → 2.5）
 
 // ショップのカードに太字で出す「ひとこと」と、盤面の機械に付ける小さなバッジ（数字で効く機械のバッジは game.js の badgeOf が今の倍率で作る）
 // 何に反応するかだけを書く（相方の名前は書かない）
 const MACHINE_SHORT = {
   grinder: ['価値 +2', '+2'],
-  cooler: ['隣の「×」を +1', '冷却'],
+  cooler: ['隣の「×」を +2', '冷却'],
   prism: ['隣の種類の数だけ、隣を強化', '分光'],
-  amp: ['隣の +・× が4倍', '増幅'],
+  amp: ['隣の × を2.5乗・+ を4倍', '増幅'],
   philosopher: ['一気に金へ・ランクの上限なし', '賢者'],
   solar: ['熱の数だけ ×（消さない）', '太陽'],
   crown: ['種類が多いほど出荷 ×', '王冠'],
-  clock: ['隣の発動回数 +1', '時計'],
+  clock: ['隣の発動回数が2倍', '時計'],
   furnace: ['価値 ×2', '×2'],
   burner: ['熱 +2', '熱+2'],
   twin: ['×1.5（並べると ×2.5）', '×1.5'],
   quench: ['熱を倍率に変える', '急冷'],
-  bellows: ['隣の炉の熱 +1', '送風'],
+  bellows: ['隣の炉の熱 +2', '送風'],
   sieve: ['石に +4', '+4'],
   mason: ['石に ×2', '×2'],
   melter: ['×12・ランク -1', '×12'],
@@ -1654,7 +1751,7 @@ const MACHINE_SHORT = {
   lottery: ['15%で ×10', '抽選'],
   cat: ['隣の運を上げる', '招福'],
   catalyst: ['次の × をもう1回', '触媒'],
-  cursed: ['×5・25%で消滅', '×5'],
+  cursed: ['×8・20%で消滅', '×8'],
   splitter: ['2個に分ける', '分裂'],
   resonator: ['分身に ×3.5', '×3.5'],
   thunder: ['6回ごとに全体へ雷', '落雷'],
@@ -1777,7 +1874,13 @@ const MASTERY_MAX = 3;
 const TUNE_STEP = 0.05; // 習熟1段階ぶんの効果（「+」「×」の機械。3段で +15%）
 const TUNE_DISCOUNT = 1; // 習熟1段階ぶんの、ショップでの値引き（枚）
 const SHOP_STEP = 0; // 習熟でショップに並びやすくなる効果はなくした（同じビルドに固まるので。前は +10%→+4%/段）
-const LUCK_STEP = 0.25; // 研究「目利き」1段ごとに、レア・エピック・レジェンドの出やすさ +25%
+// 研究「目利き」1段ごとの出やすさ（レア度が高いほど大きく伸びる。最大3段）
+// 2026-11-17：前は一律 +25%（最大2段）で、ショップのレジェンドが 1.5% → 2% にしかならず、取っても実感がなかった
+// 3段で：ショップ レア 14%→18%・エピック 4.5%→8.6%・レジェンド 1.5%→4.4%、ガチャ エピック 18%→26%・レジェンド 7%→16%
+const LUCK_STEP = { 3: 0.15, 4: 0.4, 5: 0.8 };
+function luckMul(tier) {
+  return 1 + (LUCK_STEP[tier] || 0) * rlv('luck');
+}
 const RESEARCH_TABS = [
   { id: 'gen', name: '経営・設備', icon: '¥' },
   { id: 'work', name: '加工の機械', icon: '炉' },
@@ -1809,7 +1912,7 @@ const TREE_GENERAL = [
     { id: 'items', name: '原料増量', desc: '1日の原料 +2', max: 3 },
     { id: 'shop', name: '仕入れ先拡大', desc: 'ショップの品数 +1', max: 2 },
     { id: 'reward', name: '日報の充実', desc: '日報ボーナスの選択肢 +1', max: 1 },
-    { id: 'luck', name: '目利き', desc: 'レア・エピック・レジェンドが出やすくなる（ショップと納期達成ガチャ。1段ごとに +25%）', max: 2 },
+    { id: 'luck', name: '目利き', desc: 'レア・エピック・レジェンドが出やすくなる（ショップと納期達成ガチャ。1段ごとに レア +15%・エピック +40%・レジェンド +80%）', max: 3 },
   ] },
 ];
 // 機械が何段目か（1=最初から研究できる、2・3=その分類で研究を進めると開く）
@@ -3703,20 +3806,21 @@ function liveMult(m) {
 }
 // 盤面の機械に付けるバッジ（効果がひと目でわかる短い文字）。数字で効く機械は、研究・★・隣の機械を入れた今の数字
 const BADGE_ADD = { grinder: 2, sieve: 4 };
-const BADGE_MUL = { furnace: 2, melter: 12, resonator: 3.5, cursed: 5 };
+const BADGE_MUL = { furnace: 2, melter: 12, resonator: 3.5, cursed: 8 };
+const COOLER_ADD = 2; // 冷却塔1台ごとに、隣の「×」の倍率 +2（2026-11-14：+1 → +2）
 function badgeOf(m) {
   const d = MACHINES[m.type];
   const R = G.run;
   if (m.x < 0 || !R) return d.badge;
   const k = tuneMul(m.type) * starMul(m) * ampMul(m);
   const adj = (t) => countAdjType(m.x, m.y, t);
-  const mulTxt = (base) => '×' + fmtMult(Math.round((1 + (base - 1) * k + adj('cooler')) * 10) / 10);
+  const mulTxt = (base) => '×' + fmtMult(Math.round(mulEff(m, base) * 10) / 10);
   if (m.type in BADGE_ADD) return '+' + fmtMult(Math.round(BADGE_ADD[m.type] * k * 10) / 10);
   if (m.type in BADGE_MUL) return mulTxt(BADGE_MUL[m.type]);
   if (m.type === 'twin') return mulTxt(adj('twin') + (modOn('twin') ? adjHotCount(m) : 0) > 0 ? 2.5 : 1.5);
   if (m.type === 'mason') return mulTxt(2 + 2 * adj('sieve'));
   if (m.type === 'goldsmith') return mulTxt(3.5);
-  if (m.type === 'prism') return '隣×' + fmtMult(Math.round(Math.pow(modOn('prism') ? 1.7 : PRISM_BASE, prismKinds(m)) * 10) / 10);
+  if (m.type === 'prism') return '隣×' + fmtMult(Math.round(prismStep(m) * 10) / 10);
   if (m.type === 'lottery') return Math.round(Math.min(0.9, 0.15 + 0.25 * adj('cat')) * 100) + '%';
   if (m.type === 'vault' || m.type === 'exchange') {
     const l = liveMult(m);
@@ -4016,9 +4120,8 @@ function gotMachine(type) {
 // 納期を達成すると、ガチャを1回まわせる（2026-11-14：前はショップに「カプセル」を並べていたが、ショップで直接ガチャを引くのは違うので、納期達成のごほうびにした）
 // 研究でまだ開いていない機械（設計図が要る機械・レジェンド）も出る。出た機械は手持ちに入る（所持の上限を超えても受け取れる）
 function gachaWeights() {
-  const luck = 1 + LUCK_STEP * rlv('luck');
   const w = {};
-  for (const k of Object.keys(GACHA_W)) w[k] = GACHA_W[k] * (k >= 3 ? luck : 1);
+  for (const k of Object.keys(GACHA_W)) w[k] = GACHA_W[k] * luckMul(+k);
   return w;
 }
 function drawGacha() {
@@ -4046,9 +4149,8 @@ const SYNERGY_WEIGHT = 4;
 // tierW：レア度ごとの重みを差し替える（カプセルなど）
 // 2026-11-14：前は研究の「習熟」で機械ごとに並びやすくなったが、同じビルドばかりに固まるのでなくした
 function rarityWeights() {
-  const luck = 1 + LUCK_STEP * rlv('luck');
   const w = {};
-  for (const k of Object.keys(RARITY)) w[k] = RARITY[k].w * (k >= 3 ? luck : 1);
+  for (const k of Object.keys(RARITY)) w[k] = RARITY[k].w * luckMul(+k);
   return w;
 }
 function weightedPick(pool, rnd = Math.random, tierW = null) {
@@ -4507,10 +4609,10 @@ function updateRun(dt) {
 }
 
 // 機械1台が1回の発動で何回効果を出すか（強化マスなら2回。反響レールは processTile で足す）
-// 時計塔（レジェンド）：隣の機械の発動回数 +1（時計塔が盤面にあるときだけ数える）
+// 時計塔（レジェンド）：隣の時計塔1台ごとに、発動回数が2倍（強化マスと重なれば 2回→4回）。2026-11-17：+1 → 2倍
 function repsOf(m) {
   let n = machineSpecial(m) === 'boost' ? 2 : 1;
-  if (m.type !== 'clock' && clockCount()) n += countAdjType(m.x, m.y, 'clock');
+  if (m.type !== 'clock' && clockCount()) n *= Math.pow(2, countAdjType(m.x, m.y, 'clock'));
   return n;
 }
 function clockCount() {
@@ -4526,18 +4628,36 @@ function canStar(m) {
   const k = MACHINES[m.type].kind;
   return k === 'add' || k === 'mult';
 }
-// 隣の増幅器1台ごとに効果 3倍、5倍…（「+」「×」の機械だけ。2026-11-14：2マスの機械を強くするため 2倍 → 3倍）
+// 増幅器（レジェンド・2マス）：隣の「+」の効果は 4倍、7倍…（1台ごとに+3倍）。
+// 隣の「×」の効果は 2.5乗（2台なら4乗）。2026-11-17：×も4倍 → 2.5乗（倍率の大きい機械の隣ほど伸びる）
+// 2乗だと ×2 の機械が前（×5）より弱くなり、急冷槽の隣でも約2800倍止まりだった。2.5乗で急冷槽の盤面が約17万倍（賢者の石の半分）
 const AMP_K = 3;
+const AMP_POW = 1.5;
+// 「+」の効果に掛かる倍率（増幅器・プリズム）
 function ampMul(m) {
   return canStar(m) ? (1 + AMP_K * countAdjType(m.x, m.y, 'amp')) * prismFactor(m) : 1;
 }
-// プリズム（エピック・常時・2マス）：隣のプリズム1台ごとに、そのプリズムに触れている機械の種類の数だけ ×1.5（追加効果で ×1.7）。累乗で効く
-const PRISM_BASE = 1.5;
+// 「×」の効果を何乗するか（1 + 隣の増幅器1台ごとに 1.5）
+function ampPow(m) {
+  return canStar(m) ? 1 + AMP_POW * countAdjType(m.x, m.y, 'amp') : 1;
+}
+// 「×base」の実際の倍率（強化・改造★・プリズムは増えた分に掛かる、冷却塔と金運の招き猫は+、最後に増幅器で累乗）
+function mulEff(m, base, extra) {
+  const f = 1 + (base - 1) * tuneMul(m.type) * starMul(m) * (canStar(m) ? prismFactor(m) : 1) + COOLER_ADD * countAdjType(m.x, m.y, 'cooler') + (extra || 0);
+  const p = ampPow(m);
+  return p > 1 && f > 1 ? Math.pow(f, p) : f;
+}
+// プリズム（エピック・常時・2マス）：隣のプリズム1台ごとに、そのプリズムに触れている機械の種類の数だけ ×1.6（追加効果で ×1.8）。累乗で効く
+// 2026-11-17：×1.5 / ×1.7 → ×1.6 / ×1.8（×2 だと熱の盤面が76万倍で賢者の石を超えた。×1.6 で約5000倍）
+const PRISM_BASE = 1.6;
+function prismStep(p) {
+  return Math.pow(modOn('prism') ? 1.8 : PRISM_BASE, prismKinds(p));
+}
 function prismFactor(m) {
   let f = 1;
   for (const p of adjMachineList(m.x, m.y)) {
     if (p.type !== 'prism' || offline(p)) continue;
-    f *= Math.pow(modOn('prism') ? 1.7 : PRISM_BASE, prismKinds(p));
+    f *= prismStep(p);
   }
   return f;
 }
@@ -4639,7 +4759,7 @@ function makeCtx(m, item, dry, pool, born) {
       return countAdjType(m.x, m.y, 'cat');
     },
     coolers() {
-      return countAdjType(m.x, m.y, 'cooler');
+      return COOLER_ADD * countAdjType(m.x, m.y, 'cooler');
     },
     // 見込み計算用：倍率をそのまま掛ける（演出なし）。期待値で掛けるので触媒もここで消費する
     scale(f) {
@@ -4661,7 +4781,7 @@ function makeCtx(m, item, dry, pool, born) {
     },
     // 「×base」の実際の倍率（強化・改造★・隣の増幅器は増えた分に掛かる、冷却塔と金運の招き猫は+1）
     eff(base) {
-      return 1 + (base - 1) * tuneMul(m.type) * starMul(m) * ampMul(m) + countAdjType(m.x, m.y, 'cooler') + this.catBank();
+      return mulEff(m, base, this.catBank());
     },
     add(n) {
       if (n <= 0) return;
@@ -4683,7 +4803,7 @@ function makeCtx(m, item, dry, pool, born) {
       // ふいごの追加効果「送風」：炉でなくても、隣にふいごがある「×」の機械は熱を出す
       const bellows = countAdjType(m.x, m.y, 'bellows');
       if (MACHINES[m.type].hot) {
-        if (!countAdjType(m.x, m.y, 'cooler') || modOn('cooler')) item.heat = (item.heat || 0) + 1 + bellows;
+        if (!countAdjType(m.x, m.y, 'cooler') || modOn('cooler')) item.heat = (item.heat || 0) + 1 + 2 * bellows; // ふいご1台につき +2（2026-11-17：+1 → +2）
       } else if (bellows && modOn('bellows') && MACHINES[m.type].kind === 'mult' && m.type !== 'quench') {
         item.heat = (item.heat || 0) + bellows;
       }
@@ -5045,16 +5165,21 @@ function checkUnit(item, pos) {
   }
 }
 
-// 出荷時のランク倍率
-// 出荷のときの倍率：王冠（レジェンド）があれば、盤面の機械の種類の数 × 0.5（追加効果で 0.8）を足す。王冠が2台なら2台ぶん
-function shipMulOf(item) {
-  let f = tierOf(item.tier).ship;
+// 出荷のときの倍率：王冠（レジェンド）があれば、盤面の機械の種類1つごとに ×2.5（追加効果で ×2.8）。王冠が2台なら2倍
+// 大型（2マス）の機械は2種類分に数える。2026-11-17：×2 → ×2.5、大型は2種類分（×3 だと大型を混ぜた盤面が45万倍で賢者の石を超えた）
+function crownKinds() {
+  const seen = new Map();
+  for (const m of placedMachines()) if (!offline(m)) seen.set(m.type, (MACHINES[m.type].cells || 1) >= 2 ? 2 : 1);
+  let n = 0;
+  for (const v of seen.values()) n += v;
+  return n;
+}
+function crownMul() {
   const crowns = countPlaced('crown');
-  if (crowns) {
-    const kinds = new Set(placedMachines().filter((m) => !offline(m)).map((m) => m.type)).size;
-    f *= crowns * Math.pow(modOn('crown') ? 2.2 : CROWN_STEP, kinds);
-  }
-  return f;
+  return crowns ? crowns * Math.pow(modOn('crown') ? 2.8 : CROWN_STEP, crownKinds()) : 1;
+}
+function shipMulOf(item) {
+  return tierOf(item.tier).ship * crownMul();
 }
 
 function shipItem(item) {
@@ -5130,6 +5255,12 @@ function shipItem(item) {
 
 // 1日の終わり。その期の合計がノルマに届いていれば納期達成（次の日から次の期）。納期の日に届いていなければ解雇。
 // どちらでもなければ、同じ期のまま次の日へ
+// 貯金箱：1台ごとに、日の終わりに 持ちコイン10枚ごとに+1枚（上限なし）
+// 2026-11-17：複利で毎日 1.8倍に増え続け、金庫・換金機と組むとエンドレスがどこまでも続くほど強い。
+// ユーザーの判断で効果はそのまま、レア度を アンコモン → レア に上げて出にくくした
+function piggyIncome(coins) {
+  return countPlaced('piggy') * Math.floor(Math.max(0, coins) / 10);
+}
 function endDay() {
   const R = G.run;
   if (R.hi) return endHiDay();
@@ -5150,7 +5281,7 @@ function endDay() {
   // 毎日の報酬：基本 + 利息 + 貯金箱 + キャッシュバック
   const base = R.boss ? 6 : 4;
   const interest = Math.min(R.interestCap, Math.floor(R.coins / 5));
-  const piggy = countPlaced('piggy') * Math.floor(R.coins / 10); // 貯金箱（上限なし）
+  const piggy = piggyIncome(R.coins); // 貯金箱
   const cashback = modOn('exchange') ? Math.floor((R.dayStats.spent || 0) / 2) : 0; // 換金機「キャッシュバック」
   const dayPts = DAY_PATENT;
   R.stats.patentPts += dayPts;
@@ -5220,7 +5351,7 @@ function endHiDay() {
   const coinsAtEnd = R.coins;
   const base = R.boss ? 6 : 4;
   const interest = Math.min(R.interestCap, Math.floor(R.coins / 5));
-  const piggy = countPlaced('piggy') * Math.floor(R.coins / 10);
+  const piggy = piggyIncome(R.coins);
   const cashback = modOn('exchange') ? Math.floor((R.dayStats.spent || 0) / 2) : 0;
   const dayPts = DAY_PATENT;
   R.stats.patentPts += dayPts;
@@ -7080,11 +7211,20 @@ const UI = (() => {
   // PC：右の欄＝手持ち・機械の詳細・今日の情報・稼働開始 ／ 下の段いっぱい＝ショップ
   // スマホ縦：盤面の下に ショップ（左）と手持ち（右の細い列）、いちばん下に稼働開始。機械の詳細は盤面の上に重ねる詳細バー
   // style.css の同じ条件で切り替える
-  const MOBILE_MQ = '(max-width: 760px), (orientation: portrait) and (max-width: 1100px)';
+  // 縦長の画面だけ。横向きのスマホは「左に盤面、右に手持ちとショップ」の配置（layout() の short）にする
+  const MOBILE_MQ = '(orientation: portrait) and (max-width: 1100px)';
   const isMobile = () => window.matchMedia(MOBILE_MQ).matches;
   let dock, detailBar, foot;
   let lastShopStamp = -1; // ショップの入荷が変わったら、カードを左から順に配る
   let shopSel = null; // タップ（クリック）して説明を見ているショップの品（番号）
+  // スマホ縦：ショップを閉じて手持ちを広く見せる（端末に覚えておく）
+  let shopClosed = false;
+  try { shopClosed = localStorage.getItem('ca_shopClosed') === '1'; } catch (e) { shopClosed = false; }
+  function setShopClosed(v) {
+    shopClosed = v;
+    document.body.classList.toggle('shop-closed', v);
+    try { localStorage.setItem('ca_shopClosed', v ? '1' : '0'); } catch (e) { /* 保存できなくても動く */ }
+  }
 
   // 盤面・右の欄・ショップの大きさを画面から決める。盤面は 13:9 のまま、余った幅は右の欄、余った高さはショップに回す（空白を出さない）
   function layout() {
@@ -7286,7 +7426,7 @@ const UI = (() => {
     const rdis = !build || (!free && R.coins < R.rerollCost);
     dock.className = (build ? 'building' : 'running') + (pop && build ? ' restock' : '');
     dock.innerHTML = `
-      <div class="dock-h"><b>ショップ</b>${pop && build ? '<span class="restock-tag">入荷！</span>' : ''}
+      <div class="dock-h"><b>ショップ</b><button class="shop-toggle" data-ui="shoptoggle">${shopClosed ? '▲ 開く' : '▼ 閉じる'}</button>${pop && build ? '<span class="restock-tag">入荷！</span>' : ''}
         <span class="shop-hint">${build ? (isMobile() ? 'カードをタップで説明 ・「購入」で買う' : 'カードにカーソルを合わせると説明 ・「購入」で買う（盤面へドラッグしても買える）') : '稼働中は買えません'}</span>
         <span class="sell-hint">ここへ離すと売却</span>
         <button class="reroll" data-ui="reroll" title="品ぞろえを入れ替える" ${rdis ? 'disabled' : ''}><span>↻ 入れ替え</span>${free ? `<span class="px-price free"><b>無料×${R.freeRerolls}</b></span>` : pxPrice(R.rerollCost)}</button></div>
@@ -7372,7 +7512,9 @@ const UI = (() => {
       case 'mason':
         return placed ? `隣のふるい ${countAdjType(m.x, m.y, 'sieve')}台 → 石なら <b>×${fmtMult(2 + 2 * countAdjType(m.x, m.y, 'sieve'))}</b>` : '';
       case 'bellows':
-        return placed ? `隣の「炉」 <b>${adj((o) => MACHINES[o.type].hot)}台</b> の熱が+1` : '';
+        return placed ? `隣の「炉」 <b>${adj((o) => MACHINES[o.type].hot)}台</b> の熱が+2` : '';
+      case 'piggy':
+        return R && !R.demo ? `持ちコイン ${R.coins}枚 → 日の終わりに <b>+${Math.floor(Math.max(0, R.coins) / 10)}枚</b>（1台ぶん）` : '';
       case 'cat':
         return placed ? `隣の宝くじ機 ${countAdjType(m.x, m.y, 'lottery')}台・呪いの炉 ${countAdjType(m.x, m.y, 'cursed')}台` : '';
       case 'battery':
@@ -7380,7 +7522,16 @@ const UI = (() => {
       case 'cooler':
         return placed ? `隣の「×」系の機械 <b>${adj((o) => MACHINES[o.type].kind === 'mult' || o.type === 'transmuter')}台</b>${!modOn('cooler') && adj((o) => MACHINES[o.type].hot) ? '　<b style="color:#ff8f8f">隣の炉は熱を出さない</b>' : ''}` : '';
       case 'amp':
-        return placed ? `隣の「+」「×」の機械 <b>${adj((o) => canStar(o))}台</b> の効果が3倍` : '';
+        return placed ? `隣の「+」「×」の機械 <b>${adj((o) => canStar(o))}台</b>：「+」は4倍、「×」は2.5乗` : '';
+      case 'crown': {
+        if (!R || R.demo) return '';
+        const c = countPlaced('crown');
+        const n = crownKinds() + (placed || c ? 0 : 1);
+        const mul = (c + (placed ? 0 : 1)) * Math.pow(modOn('crown') ? 2.8 : CROWN_STEP, n);
+        return `${placed ? '' : '置くと：'}盤面の機械 <b>${n}種類</b>（大型は2種類分）→ 出荷のとき <b>×${fmt(mul)}</b>`;
+      }
+      case 'clock':
+        return placed ? `隣の機械 <b>${adj(() => true)}台</b> の発動回数が2倍` : '';
       case 'exchange': {
         const per = m.x >= 0 ? beltHits(m.x, m.y) : 0;
         return `持ちコイン ${R.coins}枚 → <b>×${fmtMult(Math.round((1 + R.coins / 20) * 10) / 10)}</b>${per ? `（アイテム1個につき${per}枚払う。原料${R.itemsToday}個なら1日で最大${per * R.itemsToday}枚）` : ''}`;
@@ -7388,7 +7539,7 @@ const UI = (() => {
       case 'prism': {
         if (!placed) return '';
         const n = prismKinds(m);
-        return `隣の機械 ${n}種類 → 隣の「+」「×」の効果が <b>×${fmtMult(Math.round(Math.pow(modOn('prism') ? 1.7 : PRISM_BASE, n) * 100) / 100)}</b>`;
+        return `隣の機械 ${n}種類 → 隣の「+」「×」の効果が <b>×${fmtMult(Math.round(prismStep(m) * 100) / 100)}</b>`;
       }
       case 'alchemist': {
         const p = countPlaced('alchemist') || 1;
@@ -7407,7 +7558,7 @@ const UI = (() => {
         if (!placed) return '';
         const reps = beltHits(m.x, m.y);
         let f = 1;
-        for (let k = 1; k <= reps; k++) f *= 1 + 0.5 * k * ampMul(m);
+        for (let k = 1; k <= reps; k++) f *= mulEff(m, 1 + 0.5 * k);
         return `1個に <b>${reps}回</b> 当たる → 合計 <b>×${fmtMult(Math.round(f * 10) / 10)}</b>（反響レール・強化マスでさらに増える）`;
       }
     }
@@ -7438,7 +7589,7 @@ const UI = (() => {
       else if (d.kind === 'passive') parts.push('隣接する機械に常時効果');
       else parts.push(`アイテム1個につき <b>${hits}回</b> 発動`);
       if (amps && canStar(m)) parts.push(`<b style="color:#f7a8ff">増幅 効果×${1 + amps}</b>`);
-      if (coolers && d.kind === 'mult') parts.push(`冷却 倍率+${coolers}`);
+      if (coolers && d.kind === 'mult') parts.push(`冷却 倍率+${COOLER_ADD * coolers}`);
       const sp = machineSpecial(m);
       if (sp === 'boost') parts.push('<b style="color:#ffd447">★強化マス：発動+1</b>');
       if (sp === 'broken') parts.push('<b style="color:#ff6b6b">✕故障マス：今日は動かない</b>');
@@ -8653,6 +8804,12 @@ const UI = (() => {
       skipDay();
       return;
     }
+    if (act === 'shoptoggle') {
+      setShopClosed(!shopClosed);
+      Sfx.click();
+      G.dirty = true;
+      return;
+    }
     if (G.state !== 'build') return;
     // 「購入」ボタン：買って、そのまま置く場所を選ぶ
     const buyBtn = e.target.closest('[data-buy]');
@@ -9115,6 +9272,7 @@ const UI = (() => {
     dock = $('dock');
     detailBar = $('detail-bar');
     foot = $('foot');
+    document.body.classList.toggle('shop-closed', shopClosed);
     for (const el of [side, dock, detailBar, foot]) el.addEventListener('click', onPanelClick);
     dock.addEventListener('pointerdown', onDockDown);
     side.addEventListener('pointerdown', onSideDown);
